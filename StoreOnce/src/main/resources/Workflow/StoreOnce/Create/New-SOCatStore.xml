@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="3ba663f7-627b-49ef-a626-8c585b091bba" version="0.0.6" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[New-SOCatStore]]></display-name>
+  <position y="50.0" x="100.0"></position>
+  <input>
+    <param name="SO_Host" type="REST:RESTHost"></param>
+    <param name="SO_SID" type="string"></param>
+    <param name="SO_CatStoreName" type="string"></param>
+    <param name="SO_CatStoreDesc" type="string"></param>
+  </input>
+  <workflow-item  name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="384.5"></position>
+  </workflow-item >
+  <workflow-item  name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[process New-SOCatStore]]></display-name>
+    <script encoded="false"><![CDATA[System.log ("Creating new Catralyst Store on SID " + SO_SID + " from Device: " + SO_Host.Name);
+
+//Base Request
+var data = "name=" + SO_CatStoreName + "&description=" + SO_CatStoreDesc;
+	data += "&primaryTransferPolicy=0";
+	data += "&secondaryTransferPolicy=1";
+	data += "&userDataSizeLimitBytes=0";
+	data += "&dedupedDataSizeOnDiskLimitBytes=0";
+	data += "&dataJobRetentionDays=90";
+	data += "&inboundCopyJobRetentionDays=90";
+	data += "&outboundCopyJobRetentionDays=90";
+	data += "&encryption=false";
+
+var Request = SO_Host.createRequest("POST", '/cluster/servicesets/' + SO_SID + '/services/cat/stores/' , data);
+Request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+Request.setHeader('Accept', 'text/xml');
+
+var Response = Request.execute();
+var Response_XML = new XML(Response.contentAsString);
+
+System.debug (Response_XML);]]></script>
+    <in-binding>
+      <bind name="SO_Host" type="REST:RESTHost" export-name="SO_Host"></bind>
+      <bind name="SO_SID" type="string" export-name="SO_SID"></bind>
+      <bind name="SO_CatStoreName" type="string" export-name="SO_CatStoreName"></bind>
+      <bind name="SO_CatStoreDesc" type="string" export-name="SO_CatStoreDesc"></bind>
+    </in-binding>
+    <out-binding></out-binding>
+    <position y="55.40909090909091" x="204.5"></position>
+  </workflow-item >
+  <presentation>
+    <p-step>
+      <title><![CDATA[StoreOnce Details]]></title>
+      <p-param name="SO_Host">
+        <desc><![CDATA[SO_Host]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="SO_SID">
+        <desc><![CDATA[SO_SID]]></desc>
+        <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[GetAction("org.hpe.storeonce","Get_SOServiceSetIDs").call( #SO_Host )]]></p-qual>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+    </p-step>
+    <p-step>
+      <title><![CDATA[Store Details]]></title>
+      <p-param name="SO_CatStoreName">
+        <desc><![CDATA[SO_CatStoreName]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="SO_CatStoreDesc">
+        <desc><![CDATA[SO_CatStoreDesc]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+    </p-step>
+  </presentation>
+</workflow>

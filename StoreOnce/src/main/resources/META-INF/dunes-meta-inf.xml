@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>192.168.130.129:8281</comment>
+<entry key="vso-build-nb">3533702</entry>
+<entry key="pkg-description"></entry>
+<entry key="pkg-name">org.mycloudrevolution.hpe.storeonce</entry>
+<entry key="used-plugins">REST#2.0.1</entry>
+<entry key="pkg-owner">O=VMware,OU=Unknown,CN=vRO localhost.localdom f43f2846-a085-4e1d-ab79-3cef3738dc48</entry>
+<entry key="vso-version">7.0.1.3533702</entry>
+<entry key="pkg-id">40287d005979a096015993118b460008</entry>
+</properties>

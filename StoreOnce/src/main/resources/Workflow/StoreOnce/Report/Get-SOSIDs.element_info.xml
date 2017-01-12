@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>Exported from [server]</comment>
+<entry key="categoryPath">StoreOnce.Report</entry>
+<entry key="name">Get-SOSIDs</entry>
+<entry key="type">Workflow</entry>
+<entry key="id">c5e17871-ec1c-456a-bd02-ea691376a35e</entry>
+</properties>

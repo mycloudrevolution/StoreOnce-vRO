@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item2" object-name="workflow:name=generic" id="830ac2a5-6156-4bf5-af34-4a504738ef6e" version="0.0.7" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Get-SOCatStores]]></display-name>
+  <position y="50.0" x="100.0"></position>
+  <input>
+    <param name="SO_Host" type="REST:RESTHost"></param>
+  </input>
+  <output>
+    <param name="SOCatStores" type="Array/CompositeType(ssid:Array/string,name:Array/string,id:Array/string,status:Array/string,health:Array/string,userdatastored:Array/number,sizeondisk:Array/number,deduperatio:Array/number):SOCatStores"></param>
+  </output>
+  <attrib name="SOServiceSets" type="Array/CompositeType(ssid:Array/string,name:Array/string,serialNumber:Array/string,softwareVersion:Array/string,overallHealth:Array/string,overallStatus:Array/string,capacityBytes:Array/number,freeBytes:Array/number,userBytes:Array/number,diskBytes:Array/number):SOServiceSet" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <workflow-item  name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="524.5"></position>
+  </workflow-item >
+  <workflow-item  name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[process Get-SOCatStores]]></display-name>
+    <script encoded="false"><![CDATA[var SOCatStores = new Array();
+for (var i = 1; i <= SOServiceSets.length; i++) {
+	//Base Request
+	var Request = SO_Host.createRequest("GET", '/cluster/servicesets/' + i + '/services/cat/stores/' , null);
+	Request.setHeader('Accept', 'text/xml');
+	var Response = Request.execute();
+	var Response_XML = new XML(Response.contentAsString)
+	//Get all StoreOnce Catalyst Stores
+	var stores = Response_XML.stores.store.properties
+	var stores_Count = stores.length();
+	System.log (stores_Count + " Stores On SID " + i)
+	//Get all StoreOnce Catalyst Stores Details
+	var ssid = Response_XML.stores.store.properties.ssid;
+	var name = Response_XML.stores.store.properties.name;
+	var id = Response_XML.stores.store.properties.id;
+	var status = Response_XML.stores.store.properties.status;
+	var health = Response_XML.stores.store.properties.health;
+	var userdatastored = Response_XML.stores.store.properties.userdatastored;
+	var sizeondisk = Response_XML.stores.store.properties.sizeondisk;
+	var deduperatio = Response_XML.stores.store.properties.deduperatio;
+	//Fix duplicate Dedup Rates
+	for(var k = 0; k < deduperatio.length; k++) {
+	    deduperatio.splice(k+1,2);
+	}
+	//Push details to output array
+	for (var j = 0; j < stores_Count; j++) {
+		var SOCatStore = new Object();
+		SOCatStore.ssid = String(ssid[j]);
+		SOCatStore.name = String(name[j]);
+		SOCatStore.id = String(id[j]);
+		SOCatStore.status = String(status[j]);
+		SOCatStore.health = String(health[j]);
+		SOCatStore.userdatastored = Number(userdatastored[j]);
+		SOCatStore.sizeondisk = Number(sizeondisk[j]);
+		SOCatStore.deduperatio = Number(deduperatio[j]);
+		
+		SOCatStores.push(SOCatStore); 
+	}
+}
+
+for (i=0;i<SOCatStores.length;i++){
+	System.debug("SSID: " + SOCatStores[i].ssid)
+	System.debug("name: " + SOCatStores[i].name);
+	System.debug("id: " + SOCatStores[i].id);
+	System.debug("status: " + SOCatStores[i].status);
+	System.debug("health: " + SOCatStores[i].health);
+	System.debug("userdatastored: " + SOCatStores[i].userdatastored);
+	System.debug("sizeondisk: " + SOCatStores[i].sizeondisk);
+	System.debug("deduperatio: " + SOCatStores[i].deduperatio);
+	
+	}
+
+]]></script>
+    <in-binding>
+      <bind name="SO_Host" type="REST:RESTHost" export-name="SO_Host"></bind>
+      <bind name="SOServiceSets" type="Array/CompositeType(ssid:Array/string,name:Array/string,serialNumber:Array/string,softwareVersion:Array/string,overallHealth:Array/string,overallStatus:Array/string,capacityBytes:Array/number,freeBytes:Array/number,userBytes:Array/number,diskBytes:Array/number):SOServiceSet" export-name="SOServiceSets"></bind>
+    </in-binding>
+    <out-binding>
+      <bind name="SOCatStores" type="Array/CompositeType(ssid:Array/string,name:Array/string,id:Array/string,status:Array/string,health:Array/string,userdatastored:Array/number,sizeondisk:Array/number,deduperatio:Array/number):SOCatStores" export-name="SOCatStores"></bind>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"></position>
+  </workflow-item >
+  <workflow-item  name="item2" out-name="item1" type="link" linked-workflow-id="c5e17871-ec1c-456a-bd02-ea691376a35e">
+    <display-name><![CDATA[Get-SOSIDs]]></display-name>
+    <in-binding>
+      <bind name="SO_Host" type="REST:RESTHost" export-name="SO_Host"></bind>
+    </in-binding>
+    <out-binding>
+      <bind name="SOServiceSets" type="Array/CompositeType(ssid:Array/string,name:Array/string,serialNumber:Array/string,softwareVersion:Array/string,overallHealth:Array/string,overallStatus:Array/string,capacityBytes:Array/number,freeBytes:Array/number,userBytes:Array/number,diskBytes:Array/number):SOServiceSet" export-name="SOServiceSets"></bind>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"></position>
+  </workflow-item >
+  <presentation>
+    <p-param name="SO_Host">
+      <desc><![CDATA[SO_Host]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

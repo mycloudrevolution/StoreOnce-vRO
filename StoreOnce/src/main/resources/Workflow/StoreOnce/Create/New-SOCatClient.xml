@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item2" object-name="workflow:name=generic" id="0f5e33d6-f8c9-4640-88d7-cc6423216965" version="0.0.2" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[New-SOCatClient]]></display-name>
+  <position y="50.0" x="100.0"></position>
+  <input>
+    <param name="SO_Host" type="REST:RESTHost"></param>
+    <param name="SO_CatClientName" type="string"></param>
+    <param name="SO_CatClientDesc" type="string"></param>
+    <param name="SO_CatClentPass" type="SecureString"></param>
+  </input>
+  <attrib name="SO_ServiceSetIDs" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <workflow-item  name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="524.5"></position>
+  </workflow-item >
+  <workflow-item  name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[process New-SOCatClient]]></display-name>
+    <script encoded="false"><![CDATA[System.log ("Creating new Catralyst Client " + SO_CatClientName + " on " + SO_ServiceSetIDs.length + " SIDs from Device: " + SO_Host.Name);
+
+//Build Request Properties
+var data = "name=" + SO_CatClientName + "&description=" + SO_CatClientDesc + "&password=" + SO_CatClentPass;
+	data += "&canCreateStores=false";
+	data += "&canSetServerProperties=false";
+	data += "&canManageClientPermissions=false";
+
+//Base Request for each SID
+for (var i = 1; i <= SO_ServiceSetIDs.length; i++) {
+	var Request = SO_Host.createRequest("POST", '/cluster/servicesets/' + i + '/services/cat/configs/clients/' , data);
+	Request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+	Request.setHeader('Accept', 'text/xml');
+	
+	var Response = Request.execute();
+	var Response_XML = new XML(Response.contentAsString);
+	
+	System.debug (Response_XML);
+}]]></script>
+    <in-binding>
+      <bind name="SO_Host" type="REST:RESTHost" export-name="SO_Host"></bind>
+      <bind name="SO_CatClientName" type="string" export-name="SO_CatClientName"></bind>
+      <bind name="SO_CatClientDesc" type="string" export-name="SO_CatClientDesc"></bind>
+      <bind name="SO_CatClentPass" type="SecureString" export-name="SO_CatClentPass"></bind>
+      <bind name="SO_ServiceSetIDs" type="Array/string" export-name="SO_ServiceSetIDs"></bind>
+    </in-binding>
+    <out-binding></out-binding>
+    <position y="55.40909090909091" x="344.5"></position>
+  </workflow-item >
+  <workflow-item  name="item2" out-name="item1" type="task" script-module="org.hpe.storeonce/Get_SOServiceSetIDs">
+    <display-name><![CDATA[Get_SOServiceSetIDs]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("org.hpe.storeonce").Get_SOServiceSetIDs(SO_Host) ;]]></script>
+    <in-binding>
+      <bind name="SO_Host" type="REST:RESTHost" export-name="SO_Host"></bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/string" export-name="SO_ServiceSetIDs"></bind>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"></position>
+  </workflow-item >
+  <presentation>
+    <p-step>
+      <title><![CDATA[StoreOnce Details]]></title>
+      <p-param name="SO_Host">
+        <desc><![CDATA[SO_Host]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+    </p-step>
+    <p-step>
+      <title><![CDATA[Store Details]]></title>
+      <p-param name="SO_CatClientName">
+        <desc><![CDATA[SO_CatStoreName]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="SO_CatClientDesc">
+        <desc><![CDATA[SO_CatStoreDesc]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="SO_CatClentPass">
+        <desc><![CDATA[SO_CatClentPass]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+    </p-step>
+  </presentation>
+</workflow>

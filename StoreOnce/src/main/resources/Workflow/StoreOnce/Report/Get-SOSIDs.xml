@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="c5e17871-ec1c-456a-bd02-ea691376a35e" version="0.0.7" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Get-SOSIDs]]></display-name>
+  <position y="50.0" x="100.0"></position>
+  <input>
+    <param name="SO_Host" type="REST:RESTHost"></param>
+  </input>
+  <output>
+    <param name="SOServiceSets" type="Array/CompositeType(ssid:Array/string,name:Array/string,serialNumber:Array/string,softwareVersion:Array/string,overallHealth:Array/string,overallStatus:Array/string,capacityBytes:number,freeBytes:number,userBytes:number,diskBytes:number):SOServiceSet"></param>
+  </output>
+  <workflow-item  name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="384.5"></position>
+  </workflow-item >
+  <workflow-item  name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[process Get-SOSIDs]]></display-name>
+    <script encoded="false"><![CDATA[//Base Request
+var Request = SO_Host.createRequest("GET", '/cluster/servicesets/' , null);
+Request.setHeader('Accept', 'text/xml');
+var Response = Request.execute();
+var Response_XML = new XML(Response.contentAsString)
+
+//Get StoreOnce Service Sets
+var servicesets = Response_XML.servicesets.serviceset
+var servicesets_Count = servicesets.length();
+System.log (servicesets_Count + " SIDs on REST Host: " + SO_Host.name);
+
+//Get StoreOnce Service Set Details
+var ssid = Response_XML.servicesets.serviceset.properties.ssid;
+var name = Response_XML.servicesets.serviceset.properties.name;
+var serialNumber = Response_XML.servicesets.serviceset.properties.serialNumber;
+var softwareVersion = Response_XML.servicesets.serviceset.properties.softwareVersion;
+var overallHealth = Response_XML.servicesets.serviceset.properties.overallHealth;
+var overallStatus = Response_XML.servicesets.serviceset.properties.overallStatus;
+var capacityBytes = Response_XML.servicesets.serviceset.properties.capacityBytes;
+var freeBytes = Response_XML.servicesets.serviceset.properties.freeBytes;
+var userBytes = Response_XML.servicesets.serviceset.properties.userBytes;
+var diskBytes = Response_XML.servicesets.serviceset.properties.diskBytes;
+
+var SOServiceSets = new Array();
+for (var i = 0; i < servicesets_Count; i++) {
+	var ServiceSet = new Object();
+	ServiceSet.ssid = String(ssid[i]);
+	ServiceSet.name = String(name[i]);
+	ServiceSet.serialNumber = String(serialNumber[i]);
+	ServiceSet.softwareVersion = String(softwareVersion[i]);
+	ServiceSet.overallHealth = String(overallHealth[i]);
+	ServiceSet.overallStatus = String(overallStatus[i]);
+	ServiceSet.capacityBytes = Number(capacityBytes[i]);
+	ServiceSet.freeBytes = Number(freeBytes[i]);
+	ServiceSet.userBytes = Number(userBytes[i]);
+	ServiceSet.diskBytes = Number(diskBytes[i]);
+
+	SOServiceSets.push(ServiceSet)
+}
+
+for (i=0;i<SOServiceSets.length;i++){
+	System.debug("SSID: " + SOServiceSets[i].ssid);
+	System.debug("Name: " + SOServiceSets[i].name);
+	System.debug("serialNumber: " + SOServiceSets[i].serialNumber);
+	System.debug("softwareVersion: " + SOServiceSets[i].softwareVersion);
+	System.debug("overallHealth: " + SOServiceSets[i].overallHealth);
+	System.debug("overallStatus: " + SOServiceSets[i].overallStatus);
+	var capacityGBytes = Math.round((SOServiceSets[i].capacityBytes) / 1073741824);
+	System.debug("capacityGBytes: " + capacityGBytes);
+	var freeGBytes = Math.round((SOServiceSets[i].freeBytes) / 1073741824);
+	System.debug("freeGBytes: " + freeGBytes);
+	var userGBytes = Math.round((SOServiceSets[i].userBytes) / 1073741824);
+	System.debug("userGBytes: " + userGBytes);
+	var diskGBytes = Math.round((SOServiceSets[i].diskBytes) / 1073741824);
+	System.debug("diskGBytes: " + diskGBytes);
+	}
+]]></script>
+    <in-binding>
+      <bind name="SO_Host" type="REST:RESTHost" export-name="SO_Host"></bind>
+    </in-binding>
+    <out-binding>
+      <bind name="SOServiceSets" type="Array/CompositeType(ssid:Array/string,name:Array/string,serialNumber:Array/string,softwareVersion:Array/string,overallHealth:Array/string,overallStatus:Array/string,capacityBytes:number,freeBytes:number,userBytes:number,diskBytes:number):SOServiceSet" export-name="SOServiceSets"></bind>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"></position>
+  </workflow-item >
+  <presentation>
+    <p-param name="SO_Host">
+      <desc><![CDATA[SO_Host]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

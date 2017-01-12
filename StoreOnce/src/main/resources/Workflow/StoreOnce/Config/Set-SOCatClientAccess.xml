@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="b04a412a-000c-49ec-97fd-99b00fc39646" version="0.0.10" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Set-SOCatClientAccess]]></display-name>
+  <position y="50.0" x="100.0"></position>
+  <input>
+    <param name="SO_Host" type="REST:RESTHost"></param>
+    <param name="SO_SID" type="string"></param>
+    <param name="SO_CatStore" type="string"></param>
+    <param name="SO_CatClient" type="string"></param>
+  </input>
+  <workflow-item  name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="384.5"></position>
+  </workflow-item >
+  <workflow-item  name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[process Set-SOCatClient]]></display-name>
+    <script encoded="false"><![CDATA[var SO_CatStore_Split = SO_CatStore.split("--");
+System.log ("CatStore ID: " + SO_CatStore_Split[0]);
+System.log ("CatStore Name: " + SO_CatStore_Split[1]);
+var SO_CatClient_Split = SO_CatClient.split("--");
+System.log ("CatClient ID: " + SO_CatClient_Split[0]);
+System.log ("CatClient Name: " + SO_CatClient_Split[1]);
+
+System.log ("Grant Catalyst Store " + SO_CatStore_Split[1]  + " access to " +  SO_CatClient_Split[1] + " on SID " + SO_SID + " from Device: " + SO_Host.Name);
+
+//Base Request
+var data = "allowAccess=true";
+var Request = SO_Host.createRequest("PUT", '/cluster/servicesets/' + SO_SID + '/services/cat/stores/' + SO_CatStore_Split[0] + '/permissions/' + SO_CatClient_Split[0], data);
+Request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+Request.setHeader('Accept', 'text/xml');
+
+var Response = Request.execute();
+var Response_XML = new XML(Response.contentAsString);
+
+System.debug (Response_XML)]]></script>
+    <in-binding>
+      <bind name="SO_Host" type="REST:RESTHost" export-name="SO_Host"></bind>
+      <bind name="SO_SID" type="string" export-name="SO_SID"></bind>
+      <bind name="SO_CatStore" type="string" export-name="SO_CatStore"></bind>
+      <bind name="SO_CatClient" type="string" export-name="SO_CatClient"></bind>
+    </in-binding>
+    <out-binding></out-binding>
+    <position y="55.40909090909091" x="204.5"></position>
+  </workflow-item >
+  <presentation>
+    <p-step>
+      <title><![CDATA[StoreOnce Details]]></title>
+      <p-param name="SO_Host">
+        <desc><![CDATA[SO_Host]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="SO_SID">
+        <desc><![CDATA[SO_SID]]></desc>
+        <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[GetAction("org.hpe.storeonce","Get_SOServiceSetIDs").call( #SO_Host )]]></p-qual>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+    </p-step>
+    <p-step>
+      <title><![CDATA[Store Details]]></title>
+      <p-param name="SO_CatStore">
+        <desc><![CDATA[SO_CatStore]]></desc>
+        <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[GetAction("org.hpe.storeonce","Get_SOCatStoreNames").call( #SO_Host , #SO_SID )]]></p-qual>
+      </p-param>
+    </p-step>
+    <p-step>
+      <title><![CDATA[Client Details]]></title>
+      <p-param name="SO_CatClient">
+        <desc><![CDATA[SO_CatClient]]></desc>
+        <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[GetAction("org.hpe.storeonce","Get_SOCatClientNames").call( #SO_Host , #SO_SID )]]></p-qual>
+      </p-param>
+    </p-step>
+  </presentation>
+</workflow>

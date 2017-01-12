@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dunes-script-module name="Get_SOCatClientNames" result-type="Array/string" api-version="6.0.0" id="18d44f86-6e60-46be-be4d-6dde882cc81f" version="0.0.0" allowed-operations="vef">
+  <param n="SO_Host" t="REST:RESTHost"><![CDATA[]]></param>
+  <param n="SO_SID" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[//Base Request
+var Request = SO_Host.createRequest("GET", '/cluster/servicesets/' + SO_SID + '/services/cat/configs/clients/' , null);
+Request.setHeader('Accept', 'text/xml');
+var Response = Request.execute();
+var Response_XML = new XML(Response.contentAsString)
+
+//Get all StoreOnce Catalyst Client Details
+var id = Response_XML.clients.client.properties.id;
+var name = Response_XML.clients.client.properties.name;
+
+//Push details to output array
+var SOCatClientNames = new Array()
+for (var i = 0; i < name.length(); i++) {
+	myname = String(id[i] + "--" + name[i]);
+	SOCatClientNames.push(myname); 
+}
+
+return SOCatClientNames]]></script>
+</dunes-script-module>
