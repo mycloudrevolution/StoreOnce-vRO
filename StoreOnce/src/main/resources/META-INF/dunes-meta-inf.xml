@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-<comment>192.168.130.129:8281</comment>
+<comment>192.168.130.128:8281</comment>
 <entry key="vso-build-nb">3533702</entry>
 <entry key="pkg-description"></entry>
 <entry key="pkg-name">org.mycloudrevolution.hpe.storeonce</entry>

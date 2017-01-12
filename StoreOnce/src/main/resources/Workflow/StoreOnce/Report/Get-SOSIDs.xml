@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="c5e17871-ec1c-456a-bd02-ea691376a35e" version="0.0.7" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="c5e17871-ec1c-456a-bd02-ea691376a35e" version="0.0.8" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
   <display-name><![CDATA[Get-SOSIDs]]></display-name>
   <position y="50.0" x="100.0"></position>
   <input>
@@ -17,6 +17,25 @@
 var Request = SO_Host.createRequest("GET", '/cluster/servicesets/' , null);
 Request.setHeader('Accept', 'text/xml');
 var Response = Request.execute();
+
+System.debug ("Request.fullUrl: " + Request.fullUrl);
+System.debug ("Request.statusCode: " + Response.statusCode);
+
+if (Response.statusCode >= 400) {
+	System.error('REST call failed: ' + Response.statusCode);
+	System.error(' -> Request: ' + Request.fullUrl);
+	try {
+		var error = JSON.parse(Response.contentAsString);
+		if ('message' in error) {
+			System.error(' -> Response: ' + error.message);
+		} else throw 'No message in response';
+	} catch(err) {
+		System.error(' -> Response: ' + Response.contentAsString);
+	}
+	
+	throw 'REST call failed: ' + Response.statusCode;
+}
+
 var Response_XML = new XML(Response.contentAsString)
 
 //Get StoreOnce Service Sets
