@@ -67,12 +67,12 @@ Creates a StoreOnce Catalyst Client on all Service Sets on your StoreOnce system
 
 ![New-SOCatClient_2](/Media/New-SOCatClient_2.png)
 
-## Set-SOCatStoreAccess
+## Set-SOCatClientAccess
 
 Permit or deny Client access to a StoreOnce Catalyst Store.
 
-![Set-SOCatStoreAccess_1](/Media/Set-SOCatStoreAccess_1.png)
+![Set-SOCatClientAccess_1](/Media/Set-SOCatClientAccess_1.png)
 
-![Set-SOCatStoreAccess_2](/Media/Set-SOCatStoreAccess_2.png)
+![Set-SOCatClientAccess_2](/Media/Set-SOCatClientAccess_2.png)
 
-![Set-SOCatStoreAccess_2](/Media/Set-SOCatStoreAccess_3.png)
+![Set-SOCatClientAccess_2](/Media/Set-SOCatClientAccess_3.png)
