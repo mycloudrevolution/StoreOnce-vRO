@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="b04a412a-000c-49ec-97fd-99b00fc39646" version="0.0.10" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="b04a412a-000c-49ec-97fd-99b00fc39646" version="0.0.13" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
   <display-name><![CDATA[Set-SOCatClientAccess]]></display-name>
   <position y="50.0" x="100.0"></position>
   <input>
@@ -29,9 +29,20 @@ Request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
 Request.setHeader('Accept', 'text/xml');
 
 var Response = Request.execute();
-var Response_XML = new XML(Response.contentAsString);
 
-System.debug (Response_XML)]]></script>
+if (Response.statusCode >= 400) {
+	System.error('REST call failed: ' + Response.statusCode);
+	System.error(' -> Request: ' + Request.fullUrl);
+	try {
+		var Error_XML = new XML(Response.contentAsString);
+		var myError = Error_XML.errors.error.message;
+		System.error(' -> Response: ' + myError);
+		} catch(err) {
+		System.error(' -> Response: ' + Response.contentAsString);
+	}
+	
+	throw 'REST call failed: ' + Response.statusCode;
+}]]></script>
     <in-binding>
       <bind name="SO_Host" type="REST:RESTHost" export-name="SO_Host"></bind>
       <bind name="SO_SID" type="string" export-name="SO_SID"></bind>
@@ -50,7 +61,7 @@ System.debug (Response_XML)]]></script>
       </p-param>
       <p-param name="SO_SID">
         <desc><![CDATA[SO_SID]]></desc>
-        <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[GetAction("org.hpe.storeonce","Get_SOServiceSetIDs").call( #SO_Host )]]></p-qual>
+        <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[GetAction("org.mycloudrevolution.hpe.storeonce","Get_SOServiceSetIDs").call( #SO_Host )]]></p-qual>
         <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
       </p-param>
     </p-step>
@@ -58,14 +69,14 @@ System.debug (Response_XML)]]></script>
       <title><![CDATA[Store Details]]></title>
       <p-param name="SO_CatStore">
         <desc><![CDATA[SO_CatStore]]></desc>
-        <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[GetAction("org.hpe.storeonce","Get_SOCatStoreNames").call( #SO_Host , #SO_SID )]]></p-qual>
+        <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[GetAction("org.mycloudrevolution.hpe.storeonce","Get_SOCatStoreNames").call( #SO_Host , #SO_SID )]]></p-qual>
       </p-param>
     </p-step>
     <p-step>
       <title><![CDATA[Client Details]]></title>
       <p-param name="SO_CatClient">
         <desc><![CDATA[SO_CatClient]]></desc>
-        <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[GetAction("org.hpe.storeonce","Get_SOCatClientNames").call( #SO_Host , #SO_SID )]]></p-qual>
+        <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[GetAction("org.mycloudrevolution.hpe.storeonce","Get_SOCatClientNames").call( #SO_Host , #SO_SID )]]></p-qual>
       </p-param>
     </p-step>
   </presentation>

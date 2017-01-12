@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dunes-script-module name="Get_SOCatStoreNames" result-type="Array/string" api-version="6.0.0" id="97981bff-8f3b-43fa-91d4-86735788c54f" version="0.0.0" allowed-operations="vef">
+  <param n="SO_Host" t="REST:RESTHost"><![CDATA[]]></param>
+  <param n="SO_SID" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[//Base Request
+var Request = SO_Host.createRequest("GET", '/cluster/servicesets/' + SO_SID + '/services/cat/stores/' , null);
+Request.setHeader('Accept', 'text/xml');
+var Response = Request.execute();
+if (Response.statusCode >= 400) {
+	System.error('REST call failed: ' + Response.statusCode);
+	System.error(' -> Request: ' + Request.fullUrl);
+	try {
+		var Error_XML = new XML(Response.contentAsString);
+		var myError = Error_XML.errors.error.message;
+		System.error(' -> Response: ' + myError);
+		} catch(err) {
+		System.error(' -> Response: ' + Response.contentAsString);
+	}
+	
+	throw 'REST call failed: ' + Response.statusCode;
+}
+var Response_XML = new XML(Response.contentAsString)
+
+//Get all StoreOnce Catalyst Stores Details
+var id = Response_XML.stores.store.properties.id;
+var name = Response_XML.stores.store.properties.name;
+
+//Push details to output array
+var SOCatStoresNames = new Array()
+for (var j = 0; j < name.length(); j++) {
+	myname = String(id[j] + "--" + name[j]);
+	SOCatStoresNames.push(myname); 
+}
+
+return SOCatStoresNames]]></script>
+</dunes-script-module>
