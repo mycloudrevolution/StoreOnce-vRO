@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="3ba663f7-627b-49ef-a626-8c585b091bba" version="0.0.9" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="3ba663f7-627b-49ef-a626-8c585b091bba" version="0.0.10" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
   <display-name><![CDATA[New-SOCatStore]]></display-name>
   <position y="50.0" x="100.0"></position>
   <input>
@@ -68,7 +68,7 @@ if (Response.statusCode >= 400) {
       </p-param>
       <p-param name="SO_SID">
         <desc><![CDATA[SO_SID]]></desc>
-        <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[GetAction("org.hpe.storeonce","Get_SOServiceSetIDs").call( #SO_Host )]]></p-qual>
+        <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[GetAction("org.mycloudrevolution.hpe.storeonce","Get_SOServiceSetIDs").call( #SO_Host )]]></p-qual>
         <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
       </p-param>
     </p-step>
